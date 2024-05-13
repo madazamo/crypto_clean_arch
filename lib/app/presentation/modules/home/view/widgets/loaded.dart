@@ -1,7 +1,11 @@
 import 'package:blockchain/app/domain/models/crypto/crypto.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+
+import '../../bloc/home_bloc.dart';
+import '../../bloc/home_events.dart';
 
 const colors = <String, Color>{
   'BTC': Colors.orange,
@@ -26,46 +30,54 @@ class HomeLoaded extends StatelessWidget {
         final crypto = cryptos[index];
         return Padding(
           padding: const EdgeInsets.all(4.0),
-          child: ListTile(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-            tileColor: Colors.white,
-            leading: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SvgPicture.asset(
-                  'assets/icons/${crypto.symbol}.svg',
-                  width: 30,
-                  height: 30,
-                  color: colors[crypto.symbol],
+          child: ClipRRect(
+            clipBehavior: Clip.hardEdge,
+            child: Dismissible(
+              key: Key(crypto.id),
+              onDismissed: (_)=>context.read<HomeBloc>().add(DeleteEvent(crypto)),
+              background: Container(color: Colors.red,),
+              child: ListTile(
+                shape:
+                    RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                tileColor: Colors.white,
+                leading: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SvgPicture.asset(
+                      'assets/icons/${crypto.symbol}.svg',
+                      width: 30,
+                      height: 30,
+                      color: colors[crypto.symbol],
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            title: Text(
-                crypto.name,
-              style: const TextStyle(
-                  fontWeight: FontWeight.bold),
-            ),
-            subtitle: Text(crypto.symbol),
-            trailing: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  NumberFormat.currency(name: r'$').format(
-                    crypto.price,
-                  ),
+                title: Text(
+                    crypto.name,
                   style: const TextStyle(
                       fontWeight: FontWeight.bold),
                 ),
-                Text(
-                  '${crypto.changePercent24Hr.toStringAsFixed(2)}%',
-                  style: TextStyle(
-                      color: crypto.changePercent24Hr.isNegative
-                          ? Colors.redAccent
-                          : Colors.green),
+                subtitle: Text(crypto.symbol),
+                trailing: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      NumberFormat.currency(name: r'$').format(
+                        crypto.price,
+                      ),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      '${crypto.changePercent24Hr.toStringAsFixed(2)}%',
+                      style: TextStyle(
+                          color: crypto.changePercent24Hr.isNegative
+                              ? Colors.redAccent
+                              : Colors.green),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         );
